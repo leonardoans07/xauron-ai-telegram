@@ -12,27 +12,16 @@ log = logging.getLogger("main")
 
 
 def _read_token() -> str:
-    # Railway: prefira TOKEN. Mantém compatibilidade com TELEGRAM.
-    token = (os.getenv("TOKEN") or os.getenv("TELEGRAM") or "").strip()
-    return token
+    return (os.getenv("TOKEN") or os.getenv("TELEGRAM") or "").strip()
 
 
 def _validate_token(token: str) -> None:
-    # Token do BotFather geralmente é: números ":" string longa
-    # Ex: 123456789:AAAbbb_ccc-... (30+ chars)
     if not token:
-        raise RuntimeError(
-            "TOKEN vazio. Crie a variável de ambiente TOKEN (ou TELEGRAM) no Railway e redeploy."
-        )
+        raise RuntimeError("TOKEN vazio. Crie a variável TOKEN no Railway e redeploy.")
     if token.lower() == "token":
-        raise RuntimeError(
-            "TOKEN está como 'token' (placeholder). Cole o token real do @BotFather na variável TOKEN."
-        )
+        raise RuntimeError("TOKEN está como 'token' (placeholder). Cole o token real do @BotFather.")
     if not re.match(r"^\d+:[A-Za-z0-9_-]{30,}$", token):
-        raise RuntimeError(
-            f"TOKEN inválido (formato inesperado). Verifique se colou o token correto. "
-            f"Caracteres lidos: {len(token)}"
-        )
+        raise RuntimeError(f"TOKEN inválido (formato inesperado). Caracteres lidos: {len(token)}")
 
 
 def main() -> None:
@@ -41,12 +30,8 @@ def main() -> None:
 
     app = build_application(token)
 
-    # Polling (simples e funciona bem no Railway)
     log.info("Bot iniciando (polling). Token lido com %s caracteres.", len(token))
-    app.run_polling(
-        drop_pending_updates=True,
-        allowed_updates=["message"],
-    )
+    app.run_polling(drop_pending_updates=True, allowed_updates=["message"])
 
 
 if __name__ == "__main__":
